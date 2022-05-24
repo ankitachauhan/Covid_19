@@ -1,13 +1,13 @@
 select  * from CovidDeaths order by 3,4
 
---selecting the columns we want
+--selecting the important columns that we want
 select location, date, total_cases, new_cases, total_deaths, population from CovidDeaths order by 1,2
 
---loooking at total cases vs total deaths in India
+--loooking at total cases to total deaths in India
 select location, date, total_cases,total_deaths, (total_deaths/total_cases)*100 as DeathPercent from CovidDeaths 
 where location like '%india%' order by 1,2
 
---looking at total cases vs population in India
+--looking at total cases to population in India
 select location, date, total_cases,population, (total_cases/population)*100 as TotalcasePercent from CovidDeaths 
 where location like '%india%' order by 1,2
 
@@ -15,6 +15,7 @@ where location like '%india%' order by 1,2
 select location, population, max(total_cases) as highestinfectioncount, max((total_cases/population)*100) as PercentPopulationInfected
 from CovidDeaths Group by location,population order by PercentPopulationInfected desc
 
+--looking at countries with highest infection rate compared to population date wise
 select location, population, date, max(total_cases) as highestinfectioncount, max((total_cases/population)*100) as PercentPopulationInfected
 from CovidDeaths Group by location,population,date order by PercentPopulationInfected desc
 
@@ -66,13 +67,12 @@ sum(convert(bigint,new_vaccinations)) over (partition by cd.location order by cd
 from CovidDeaths cd JOIN CovidVaccinations cv
 on cd.location=cv.location and cd.date=cv.date
 where cd.continent is not null 
---order by 2,3				--cannot use order by in CTE
 )
 select *, (DailyPeopleVaccinated/population)*100 as PopVsVac from cte
 
 
---creating and using temp table
-if OBJECT_ID(N'tempdb..#PercentPopulationVaccinated') is not NULL		     --alternate ways - If exists(select [name] from tempdb.sys.tables where [name] like '#PercentPopulationVaccinated%')           --DROP table if exists #PercentPopulationVaccinated - works only for SQL server 2016 or higher        
+--------creating and using temp table---------
+if OBJECT_ID(N'tempdb..#PercentPopulationVaccinated') is not NULL		           
 begin 
 drop table #PercentPopulationVaccinated;
 end
